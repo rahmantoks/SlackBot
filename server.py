@@ -2,6 +2,9 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from animal import Cat, Dog
 import cgi
+import sys
+
+sys.getdefaultencoding()
 
 class CustomRequestHandler(SimpleHTTPRequestHandler):
 
@@ -28,12 +31,11 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
         # Handle the POST data here (e.g., save it to a file, process it, etc.)
         # You can replace the following code with your custom logic.
         response_message = f'Received POST data: {post_data.decode()}'
-
+        print(response_message)
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(response_message.encode())
-
+        
 if __name__ == '__main__':
     server_address = ('', 80)  # Change the port if needed
     httpd = HTTPServer(server_address, CustomRequestHandler)

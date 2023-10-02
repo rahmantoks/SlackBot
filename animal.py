@@ -2,7 +2,7 @@ import configparser
 import requests
 
 config = configparser.ConfigParser()
-config.read('/config.ini',encoding='utf-8')
+config.read('config.ini',encoding='utf-8')
 
 class Animal:
     def __init__(self,url,key):
