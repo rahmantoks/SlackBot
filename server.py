@@ -29,7 +29,7 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'Not Found')
 
-    def translate(input):
+    def translate(self,input):
         result = trans.translate_text(input,target_lang="ja")
         return result.text
     
@@ -37,10 +37,6 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
         slack = Slack()
         desc_jp = "(以下deepl自動翻訳です)\n\n" + self.translate(self.animal.description())
         name_jp  = self.translate(self.animal.breedname) + "(" + self.animal.breedname + ")"
-
-        content_type, _ = cgi.parse_header(self.headers.get('content-type'))
-        content_length = int(self.headers.get('content-length'))
-        post_data = self.rfile.read(content_length)
 
         # Handle the POST data here (e.g., save it to a file, process it, etc.)
         # You can replace the following code with your custom logic.
@@ -51,7 +47,7 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
 
         
 if __name__ == '__main__':
-    server_address = ('', 80)  # Change the port if needed
+    server_address = ('', 8000)  # Change the port if needed
     httpd = HTTPServer(server_address, CustomRequestHandler)
     print('Server is running on port 8000...')
     httpd.serve_forever()
