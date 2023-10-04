@@ -7,6 +7,7 @@ from slack import Slack
 from datetime import date
 import deepl
 import configparser
+from urllib.parse import parse_qs
 
 config = configparser.ConfigParser()
 config.read('config.ini',encoding='utf-8')
@@ -20,30 +21,38 @@ class CustomRequestHandler(SimpleHTTPRequestHandler):
         if self.path == '/cat':
             self.animal = Cat()
             self.handle_post_request()
+            self.send_response(200)
+            self.end_headers()
+
         elif self.path == '/dog':
             self.animal = Dog()
             self.handle_post_request()
+            self.send_response(200)
+            self.end_headers()
         # For all other paths, respond with a 404 Not Found
         else:
             self.send_response(404)
             self.end_headers()
-            self.wfile.write(b'Not Found')
 
     def translate(self,input):
         result = trans.translate_text(input,target_lang="ja")
         return result.text
     
     def handle_post_request(self):
-        slack = Slack()
+
         desc_jp = "(以下deepl自動翻訳です)\n\n" + self.translate(self.animal.description())
         name_jp  = self.translate(self.animal.breedname) + "(" + self.animal.breedname + ")"
 
-        # Handle the POST data here (e.g., save it to a file, process it, etc.)
-        # You can replace the following code with your custom logic.
+        length = int(self.headers.get('content-length'))
+        field_data = self.rfile.read(length)
+        fields = parse_qs(str(field_data,"UTF-8"))
+
+        print(fields)
+        slack = Slack(fields)
         slack.create_payload(name_jp,self.animal.pic)
         slack.post()
-        slack.create_reply(name_jp,desc_jp)
-        slack.post_reply()
+        # slack.create_reply(name_jp,desc_jp)
+        # slack.post_reply()
 
         
 if __name__ == '__main__':

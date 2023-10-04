@@ -6,11 +6,11 @@ config = configparser.ConfigParser()
 config.read('config.ini',encoding='utf-8')
 
 class Slack:
-    def __init__(self):
-        self.hook = config["SLACK"]['SLACK_HOOK']
+    def __init__(self,parameters):
+        self.hook = parameters["response_url"][0]
         self.hist_url = config["SLACK"]['HISTORY']
         self.token = config["SLACK"]["TOKEN"]
-        self.channel = config["SLACK"]["CHANNEL"]
+        self.channel = parameters["channel_id"][0]
 
     def post(self):
         res = requests.post(self.hook,json.dumps(self.msg_payload))
@@ -26,8 +26,10 @@ class Slack:
 
     def create_payload(self,name,pic):
         self.msg_payload = {
+            "channel": self.channel,
+            "response_type": "in_channel",
             "text" : "15時をお知らせします。そろそろ一息つきませんか？",
-            "blocks": [
+            "blocks" : [
                 {
                     "type": "section",
                     "text": {
@@ -58,6 +60,7 @@ class Slack:
         msg_id = self.get_last_msg_id()
         self.reply_payload = {
             "thread_ts": msg_id,
+            "response_type": "in_channel",
             "blocks": [
                 {
                     "type": "header",
